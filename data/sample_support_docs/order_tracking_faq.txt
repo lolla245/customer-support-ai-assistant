@@ -1,0 +1,24 @@
+Order Tracking FAQ
+==============================
+
+Q: How do I track my order?
+A: Once your order is shipped, you will receive a confirmation email with a tracking number. Visit our Order Tracking page and enter your tracking number to see the latest status.
+
+Q: My tracking number isn't working. What should I do?
+A: Tracking numbers may take up to 24 hours to activate after shipping. If it still doesn't work after 24 hours, contact support.
+
+Q: What do the different order statuses mean?
+- Order Placed: We've received your order.
+- Processing: Your order is being prepared.
+- Shipped: Your order is on its way.
+- Out for Delivery: The courier will deliver today.
+- Delivered: Your order has been delivered.
+- Cancelled: Your order was cancelled.
+
+Q: My order says delivered but I haven't received it.
+A: Check with neighbors or building reception. Wait 24 hours as deliveries can sometimes be marked early. If still missing, contact support within 72 hours of the marked delivery date.
+
+Q: Can I change my delivery address after placing the order?
+A: Address changes are only possible before the order is marked as "Shipped". Contact support immediately if you need to make a change.
+
+Contact: orders@example.com or call 1-800-000-1234

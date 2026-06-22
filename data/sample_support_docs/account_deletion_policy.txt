@@ -1,0 +1,27 @@
+Account Deletion Policy
+==============================
+
+You have the right to delete your account at any time. Please read the following before proceeding.
+
+What happens when you delete your account:
+- All personal data associated with your account will be permanently removed.
+- Your order history, saved addresses, and preferences will be deleted.
+- Any unused wallet balance or gift cards will be forfeited.
+- Active subscriptions will be cancelled immediately (no refunds for remaining period).
+
+How to Delete Your Account:
+1. Log in and go to Settings > Account > Delete Account.
+2. Read the confirmation prompt carefully.
+3. Enter your password to confirm identity.
+4. Click "Delete My Account".
+
+Your account will be scheduled for deletion within 7 days. During this period, you can cancel the deletion by logging back in.
+
+After 7 days:
+- Account is permanently deleted.
+- Data is removed from our servers within 30 days as per our Privacy Policy.
+- This action cannot be undone.
+
+Note: If you have any pending orders, please wait for them to be fulfilled or cancelled before deleting your account.
+
+To initiate account deletion via support: privacy@example.com

@@ -1,0 +1,34 @@
+Login Troubleshooting Guide
+==============================
+
+Having trouble logging in? Here are the most common issues and how to fix them.
+
+Issue 1: Incorrect Password
+- Make sure Caps Lock is off.
+- Try typing your password in a text editor first to verify it.
+- Click "Forgot Password?" to reset it.
+
+Issue 2: Account Not Found
+- Double-check the email address you are using.
+- You may have signed up with a different email (e.g., Gmail vs. work email).
+- Try searching your inbox for a welcome email from us to confirm the registered address.
+
+Issue 3: Account Locked
+- After 5 failed login attempts, your account is locked for 15 minutes.
+- Wait and try again, or reset your password.
+
+Issue 4: Two-Factor Authentication (2FA) Problems
+- Make sure your authenticator app time is synced correctly.
+- If you lost access to your 2FA device, use a backup code from your account setup.
+- If you don't have backup codes, contact support with proof of identity.
+
+Issue 5: Browser or App Issues
+- Clear your browser cache and cookies.
+- Try logging in on a different browser or device.
+- Disable browser extensions (especially ad blockers) temporarily.
+
+Issue 6: Social Login (Google / Facebook) Not Working
+- Make sure you're using the correct social account linked to your profile.
+- Try logging in with email and password instead.
+
+Still can't log in? Contact support: support@example.com
