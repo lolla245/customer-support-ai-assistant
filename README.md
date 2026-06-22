@@ -1,4 +1,3 @@
-# Customer Support AI Assistant (RAG + FastAPI)
 ---
 title: Customer Support AI
 emoji: 🤖
@@ -6,6 +5,9 @@ colorFrom: purple
 colorTo: blue
 sdk: docker
 pinned: false
+---
+
+# Customer Support AI Assistant (RAG + FastAPI)
 ---
 ---
 
