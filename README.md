@@ -1,14 +1,5 @@
----
-title: Customer Support AI
-emoji: 🤖
-colorFrom: purple
-colorTo: blue
-sdk: docker
-pinned: false
----
-
 # Customer Support AI Assistant (RAG + FastAPI)
----
+
 ---
 
 ## Problem Statement
@@ -75,3 +66,36 @@ customer-support-ai-assistant/
 ---
 
 *Day 1 — Foundation. Structure first, logic next.*
+
+# Day 2 Plan Notes — June 23, 2026
+
+## Current Stack
+- **Framework:** FastAPI + Uvicorn
+- **Vector DB:** ChromaDB (persistent)
+- **Embedding Model:** all-MiniLM-L6-v2 (local)
+- **LLM:** Groq — llama-3.3-70b-versatile
+- **Support Docs:** 5 .txt files (15 chunks)
+- **UI:** Dark-themed chat (HTML/CSS/JS)
+- **Deployment:** Hugging Face Spaces (Docker)
+
+## Current Features
+- Document loading + chunking (500 char chunks)
+- Semantic search via ChromaDB
+- RAG-based Q&A with Groq LLM
+- Ticket classification (6 categories)
+- Category shown in UI + API response
+- Source docs shown in UI
+
+## Current Limitations
+- No metadata-aware retrieval
+- No evaluation set
+- README needs improvement
+- Classification not influencing retrieval yet
+
+## What to Build Today
+1. ✅ Ticket classifier — DONE
+2. Metadata-aware retrieval
+3. Evaluation question set (15 questions)
+4. README update
+5. Aptitude + DSA
+6. SQL/NLP revision notes

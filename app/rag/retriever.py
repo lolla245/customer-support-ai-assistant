@@ -1,45 +1,64 @@
 # retriever.py
-# Searches ChromaDB for the most relevant chunks to a user query
-
 import chromadb
+
+CATEGORY_MAP = {
+    "Billing": ["refund_policy.txt"],
+    "Refund / Cancellation": ["refund_policy.txt", "order_tracking_faq.txt"],
+    "Order / Payment": ["order_tracking_faq.txt"],
+    "Login / Account": ["password_reset.txt", "login_troubleshooting.txt", "account_deletion_policy.txt"],
+    "Technical Issue": ["login_troubleshooting.txt"],
+    "General Support": []
+}
 
 def get_collection(collection_name: str = "support_docs", db_path: str = "./chroma_db"):
     client = chromadb.PersistentClient(path=db_path)
     collection = client.get_collection(collection_name)
     return collection
 
-def retrieve(query: str, top_k: int = 3) -> list[dict]:
-    """
-    Takes a user query, searches ChromaDB,
-    returns top_k most relevant chunks.
-    """
+def retrieve(query: str, top_k: int = 3, category: str = None) -> list[dict]:
     collection = get_collection()
 
-    results = collection.query(
-        query_texts=[query],
-        n_results=top_k
-    )
+    # Build where filter if category provided
+    where = None
+    if category and category in CATEGORY_MAP and CATEGORY_MAP[category]:
+        preferred_files = CATEGORY_MAP[category]
+        if len(preferred_files) == 1:
+            where = {"filename": {"$eq": preferred_files[0]}}
+        else:
+            where = {"filename": {"$in": preferred_files}}
+
+    try:
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            where=where
+        )
+    except Exception:
+        # Fallback — no filter
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k
+        )
 
     chunks = []
     for i in range(len(results["documents"][0])):
         chunks.append({
             "content": results["documents"][0][i],
             "filename": results["metadatas"][0][i]["filename"],
+            "category": results["metadatas"][0][i].get("category", ""),
             "distance": results["distances"][0][i]
         })
 
     return chunks
 
 
-# Quick test
 if __name__ == "__main__":
-    query = "How do I reset my password?"
-    print(f" Query: {query}\n")
+    print("🔍 Without category filter:")
+    results = retrieve("I want a refund", top_k=2)
+    for r in results:
+        print(f"  → {r['filename']} | {r['category']} | {r['distance']:.3f}")
 
-    results = retrieve(query)
-    for i, chunk in enumerate(results):
-        print(f"--- Result {i+1} ---")
-        print(f"File: {chunk['filename']}")
-        print(f"Distance: {chunk['distance']:.4f}")
-        print(f"Content:\n{chunk['content'][:300]}")
-        print()
+    print("\n🔍 With category filter (Refund / Cancellation):")
+    results = retrieve("I want a refund", top_k=2, category="Refund / Cancellation")
+    for r in results:
+        print(f"  → {r['filename']} | {r['category']} | {r['distance']:.3f}")

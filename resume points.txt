@@ -1,0 +1,14 @@
+Project: Customer Support AI Assistant
+
+Python | FastAPI | RAG | ChromaDB | Groq LLM | Docker
+
+Built an end-to-end RAG pipeline that ingests support documents, generates vector embeddings using all-MiniLM-L6-v2, and retrieves semantically relevant chunks via ChromaDB
+Developed a FastAPI backend with a /ask endpoint that accepts natural language queries and returns LLM-generated answers using Groq (Llama 3.3 70B)
+Analyzed retrieval quality across 10 test queries achieving 80% high/medium relevance scores; optimized chunk size to 500 characters for best retrieval performance
+Built a real-time dark-themed chat UI served via FastAPI static files
+Deployed on Hugging Face Spaces using Docker — publicly accessible live demo
+
+
+ఇందులో ఉన్న keywords recruiters చూస్తారు:
+RAG LLM Vector Search Embeddings ChromaDB FastAPI Docker Groq Semantic Search NLP
+ఇవి అన్నీ Helpshift, Freshdesk, Skit.ai, Observe.AI లాంటి companies job descriptions లో exact గా కనపడతాయి! 💪
