@@ -105,3 +105,18 @@ customer-support-ai-assistant/
 4. README update
 5. Aptitude + DSA
 6. SQL/NLP revision notes
+## 📊 Evaluation Results
+
+| # | Question | Expected Category | Predicted Category | Retrieved Source | Answer Quality |
+|---|---|---|---|---|---|
+| 1 | How do I reset my password? | Login / Account | Login / Account | password_reset.txt | ✅ Good |
+| 2 | What is your refund policy? | Refund / Cancellation | Refund / Cancellation | refund_policy.txt | ✅ Good |
+| 3 | How do I track my order? | Order / Payment | Order / Payment | order_tracking_faq.txt | ✅ Good |
+| 4 | How do I delete my account? | Login / Account | Login / Account | account_deletion_policy.txt | ✅ Good |
+| 5 | I can't log in to my account | Login / Account | Login / Account | login_troubleshooting.txt | ✅ Good |
+| 6 | How long does a refund take? | Refund / Cancellation | Refund / Cancellation | refund_policy.txt | ✅ Good |
+| 7 | My order says delivered but I didn't receive it | Order / Payment | Order / Payment | order_tracking_faq.txt | ✅ Good |
+| 8 | What are the password requirements? | Login / Account | Login / Account | password_reset.txt | 🟡 Okay |
+| 9 | How to enable two factor authentication? | Technical Issue | Login / Account | login_troubleshooting.txt | 🟡 Okay |
+| 10 | Can I change my delivery address? | Order / Payment | Order / Payment | order_tracking_faq.txt | ✅ Good |
+| 11 | My payment failed but amount was
