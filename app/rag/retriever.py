@@ -2,12 +2,18 @@
 import chromadb
 
 CATEGORY_MAP = {
-    "Billing": ["refund_policy.txt"],
+   "Billing": ["refund_policy.txt"],
+    "billing": ["refund_policy.txt"],  # lowercase కూడా add చేయి
     "Refund / Cancellation": ["refund_policy.txt", "order_tracking_faq.txt"],
+    "refund": ["refund_policy.txt"],
     "Order / Payment": ["order_tracking_faq.txt"],
+    "order": ["order_tracking_faq.txt"],
     "Login / Account": ["password_reset.txt", "login_troubleshooting.txt", "account_deletion_policy.txt"],
+    "login": ["password_reset.txt", "login_troubleshooting.txt"],
     "Technical Issue": ["login_troubleshooting.txt"],
-    "General Support": []
+    "technical": ["login_troubleshooting.txt"],
+    "General Support": [],
+    "general": []
 }
 
 def get_collection(collection_name: str = "support_docs", db_path: str = "./chroma_db"):

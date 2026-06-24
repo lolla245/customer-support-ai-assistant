@@ -120,3 +120,55 @@ customer-support-ai-assistant/
 | 9 | How to enable two factor authentication? | Technical Issue | Login / Account | login_troubleshooting.txt | 🟡 Okay |
 | 10 | Can I change my delivery address? | Order / Payment | Order / Payment | order_tracking_faq.txt | ✅ Good |
 | 11 | My payment failed but amount was
+# Support Query Schema
+
+## Structured Fields for Query Analysis
+
+### 1. category
+Classifies the type of support issue.
+- `billing`
+- `login`
+- `technical`
+- `refund`
+- `order`
+- `general`
+
+### 2. priority
+Urgency level of the query.
+- `low` — general questions
+- `medium` — account issues
+- `high` — payment failures, urgent issues
+
+### 3. user_intent
+What the user wants to do.
+- `reset_password`
+- `ask_refund`
+- `track_order`
+- `cancel_subscription`
+- `delete_account`
+- `payment_failed`
+- `bug_report`
+- `general_inquiry`
+
+### 4. product_area
+Which part of the product is affected.
+- `account`
+- `payment`
+- `subscription`
+- `app`
+- `delivery`
+
+### 5. sentiment
+User's emotional tone.
+- `neutral`
+- `frustrated`
+- `urgent`
+- `angry`
+
+### 6. entities
+Key info extracted from query.
+- `order_id`
+- `email`
+- `date`
+- `plan_name`
+- `amount`
