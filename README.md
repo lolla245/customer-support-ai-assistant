@@ -1,4 +1,3 @@
-# Customer Support AI Assistant (RAG + FastAPI)
 ---
 title: Customer Support AI
 emoji: 🤖
@@ -7,6 +6,8 @@ colorTo: blue
 sdk: docker
 pinned: false
 ---
+
+# Customer Support AI Assistant (RAG + FastAPI)
 ## Problem Statement
 
 Users frequently ask repetitive support questions that can be answered using existing help-center documentation. Instead of routing every query to a human agent, this assistant:
