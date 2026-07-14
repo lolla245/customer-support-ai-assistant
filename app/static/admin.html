@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel — Knowledge Base</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0B0E1A;
+      color: #EDEDF4;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { margin-bottom: 24px; font-size: 22px; }
+    .card {
+      background: #12162A;
+      border: 1px solid #232a4a;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    label { display: block; margin-bottom: 8px; font-size: 13px; color: #8B8FA3; }
+    input[type="password"], input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #171c34;
+      border: 1px solid #232a4a;
+      border-radius: 8px;
+      color: #EDEDF4;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #7C3AED, #C026D3);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { opacity: 0.9; }
+    .doc-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #232a4a;
+      font-size: 14px;
+    }
+    .doc-item button {
+      background: #3a1a2a;
+      color: #f87171;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+    .status { margin-top: 12px; font-size: 13px; color: #D4AF37; }
+    .error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Knowledge Base Admin</h1>
+
+    <div class="card">
+      <label>Admin Key</label>
+      <input type="password" id="adminKey" placeholder="Enter admin key" />
+      <button onclick="loadDocuments()">Load Documents</button>
+      <div class="status" id="loadStatus"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px; font-size:15px;">Current Documents</h3>
+      <div id="docList">No documents loaded yet.</div>
+    </div>
+
+    <div class="card">
+      <label>Upload New Document (.txt)</label>
+      <input type="file" id="fileInput" accept=".txt" />
+      <button onclick="uploadDocument()">Upload & Rebuild Index</button>
+      <div class="status" id="uploadStatus"></div>
+    </div>
+  </div>
+
+  <script>
+    function getKey() {
+      return document.getElementById('adminKey').value.trim();
+    }
+
+    async function loadDocuments() {
+      const key = getKey();
+      const statusEl = document.getElementById('loadStatus');
+      if (!key) { statusEl.innerHTML = '<span class="error">Enter admin key first</span>'; return; }
+
+      try {
+        const res = await fetch('/admin/documents', {
+          headers: { 'x-admin-key': key }
+        });
+        if (res.status === 401) {
+          statusEl.innerHTML = '<span class="error">Invalid admin key</span>';
+          return;
+        }
+        const data = await res.json();
+        statusEl.innerHTML = `Loaded ${data.count} documents`;
+        renderDocs(data.documents);
+      } catch (e) {
+        statusEl.innerHTML = '<span class="error">Failed to load documents</span>';
+      }
+    }
+
+    function renderDocs(docs) {
+      const listEl = document.getElementById('docList');
+      if (docs.length === 0) {
+        listEl.innerHTML = 'No documents found.';
+        return;
+      }
+      listEl.innerHTML = docs.map(d => `
+        <div class="doc-item">
+          <span>📄 ${d}</span>
+          <button onclick="deleteDocument('${d}')">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteDocument(filename) {
+      const key = getKey();
+      if (!key) { alert('Enter admin key first'); return; }
+      if (!confirm(`Delete ${filename}? This will rebuild the index.`)) return;
+
+      try {
+        const res = await fetch(`/admin/documents/${filename}`, {
+          method: 'DELETE',
+          headers: { 'x-admin-key': key }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message);
+          loadDocuments();
+        } else {
+          alert('Error: ' + data.detail);
+        }
+      } catch (e) {
+        alert('Delete failed');
+      }
+    }
+
+    async function uploadDocument() {
+      const key = getKey();
+      const statusEl = document.getElementById('uploadStatus');
+      const fileInput = document.getElementById('fileInput');
+
+      if (!key) { statusEl.innerHTML = '<span class="error">Enter admin key first</span>'; return; }
+      if (!fileInput.files.length) { statusEl.innerHTML = '<span class="error">Choose a file first</span>'; return; }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      statusEl.innerHTML = 'Uploading and rebuilding index...';
+
+      try {
+        const res = await fetch('/admin/documents/upload', {
+          method: 'POST',
+          headers: { 'x-admin-key': key },
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          statusEl.innerHTML = `✅ ${data.message} (${data.total_chunks} chunks)`;
+          fileInput.value = '';
+          loadDocuments();
+        } else {
+          statusEl.innerHTML = `<span class="error">${data.detail}</span>`;
+        }
+      } catch (e) {
+        statusEl.innerHTML = '<span class="error">Upload failed</span>';
+      }
+    }
+  </script>
+</body>
+</html>

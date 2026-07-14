@@ -1,2 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
 chroma_db/
-notebooks/chroma_db/git rm -r --cached chroma_db/
+logs/
+app/auth/users.json
+notebooks/chroma_db/
+.pytest_cache/
