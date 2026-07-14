@@ -11,3 +11,4 @@ langchain-community==0.3.7
 langchain-groq==0.2.1
 pyjwt==2.9.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
