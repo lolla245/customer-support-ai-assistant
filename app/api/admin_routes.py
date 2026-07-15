@@ -10,7 +10,7 @@ from embedder import embed_and_store
 
 admin_router = APIRouter(prefix="/admin")
 
-DOCS_PATH = os.path.join(os.path.dirname(__file__), "../../Data/sample_support_docs")
+DOCS_PATH = os.path.join(os.path.dirname(__file__), "../../data/sample_support_docs")
 ADMIN_KEY = os.getenv("ADMIN_KEY", "changeme")
 
 
