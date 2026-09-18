@@ -1,9 +1,11 @@
+.venv/
 venv/
 __pycache__/
 *.pyc
 .env
-chroma_db/
-logs/
-app/auth/users.json
-notebooks/chroma_db/
+.ipynb_checkpoints/
 .pytest_cache/
+logs/
+chroma_db/
+notebooks/chroma_db/
+app/auth/users.json

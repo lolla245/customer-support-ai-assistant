@@ -1,20 +1,27 @@
+
 # support_extractor.py
+
 # Extracts structured metadata from user support queries using Groq LLM
 
 import os
 import json
+
 from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def extract_support_info(query: str) -> dict:
+
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
     prompt = f"""You are a support issue extraction engine.
+
 Extract structured information from the user query below.
 
 Return ONLY valid JSON with these exact fields:
+
 {{
   "category": "billing|login|technical|refund|order|general",
   "priority": "low|medium|high",
@@ -40,7 +47,7 @@ User query: "{query}"
 JSON:"""
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300
     )
@@ -54,7 +61,9 @@ JSON:"""
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
+
         return json.loads(raw.strip())
+
     except json.JSONDecodeError:
         return {
             "category": "general",
@@ -68,6 +77,7 @@ JSON:"""
 
 # Test with 10 queries
 if __name__ == "__main__":
+
     test_queries = [
         "My payment failed yesterday and amount got deducted. I want a refund.",
         "How do I reset my password?",
@@ -83,6 +93,8 @@ if __name__ == "__main__":
 
     for q in test_queries:
         print(f"\nQ: {q}")
+
         result = extract_support_info(q)
+
         print(json.dumps(result, indent=2))
         print("-" * 50)

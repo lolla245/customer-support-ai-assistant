@@ -1,211 +1,100 @@
-# routes.py
-from datetime import datetime
-from collections import defaultdict
-import json
+
+# support_extractor.py
+
+# Extracts structured metadata from user support queries using Groq LLM
+
 import os
-import sys
+import json
 
-from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, Header, HTTPException
-from fastapi.responses import StreamingResponse
 from groq import Groq
-from pydantic import BaseModel
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../rag"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "../utils"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "../auth"))
-
-from retriever import retrieve
-from prompt_builder import build_prompt
-from support_extractor import extract_support_info
-from helpers import log_query
-from security import decode_access_token
+from dotenv import load_dotenv
 
 load_dotenv()
 
-router = APIRouter()
 
-conversation_memory = defaultdict(list)
-feedback_store = []
+def extract_support_info(query: str) -> dict:
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+    prompt = f"""You are a support issue extraction engine.
 
-def verify_token(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
-    token = authorization.replace("Bearer ", "")
-    username = decode_access_token(token)
-    if not username:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return username
+Extract structured information from the user query below.
 
+Return ONLY valid JSON with these exact fields:
 
-class QueryRequest(BaseModel):
-    question: str
-    session_id: str = "default"
+{{
+  "category": "billing|login|technical|refund|order|general",
+  "priority": "low|medium|high",
+  "user_intent": "reset_password|ask_refund|track_order|cancel_subscription|delete_account|payment_failed|bug_report|general_inquiry",
+  "product_area": "account|payment|subscription|app|delivery",
+  "sentiment": "neutral|frustrated|urgent|angry",
+  "entities": {{
+    "order_id": null,
+    "email": null,
+    "date": null,
+    "amount": null,
+    "plan_name": null
+  }}
+}}
 
+Rules:
+- Return ONLY JSON, no explanation
+- Choose the most relevant value for each field
+- For entities, extract actual values if mentioned, else null
 
-class QueryResponse(BaseModel):
-    query: str
-    category: str
-    priority: str
-    intent: str
-    sentiment: str
-    entities: dict
-    retrieved_sources: list[str]
-    answer: str
-    confidence_note: str
-    timestamp: str
+User query: "{query}"
 
-
-class FeedbackRequest(BaseModel):
-    session_id: str
-    question: str
-    answer: str
-    feedback: str
-
-
-def prepare_request(question: str, session_id: str):
-    extraction = extract_support_info(question)
-    category = extraction.get("category", "general")
-    priority = extraction.get("priority", "low")
-    intent = extraction.get("user_intent", "general_inquiry")
-    sentiment = extraction.get("sentiment", "neutral")
-    entities = extraction.get("entities", {})
-
-    chunks = retrieve(question, category=category)
-    sources = list({c["filename"] for c in chunks})
-
-    history = conversation_memory[session_id]
-    history_text = ""
-    for turn in history[-3:]:
-        history_text += f"User: {turn['question']}\nAssistant: {turn['answer']}\n"
-
-    base_prompt = build_prompt(question, chunks)
-    prompt = (
-        f"Previous conversation:\n{history_text}\nCurrent question:\n{base_prompt}"
-        if history_text else base_prompt
-    )
-
-    confidence = "high" if len(chunks) >= 2 else "medium"
-
-    return {
-        "category": category,
-        "priority": priority,
-        "intent": intent,
-        "sentiment": sentiment,
-        "entities": entities,
-        "sources": sources,
-        "prompt": prompt,
-        "confidence": confidence,
-    }
-
-
-@router.post("/ask", response_model=QueryResponse)
-async def ask(request: QueryRequest, username: str = Depends(verify_token)):
-    data = prepare_request(request.question, request.session_id)
+JSON:"""
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": data["prompt"]}],
-        max_tokens=512,
+        model="openai/gpt-oss-20b",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=300
     )
 
-    answer = response.choices[0].message.content
+    raw = response.choices[0].message.content.strip()
 
-    conversation_memory[request.session_id].append(
-        {"question": request.question, "answer": answer}
-    )
+    # Clean and parse JSON
+    try:
+        # Remove markdown backticks if present
+        if "```" in raw:
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
 
-    log_query(
-        query=request.question,
-        category=data["category"],
-        priority=data["priority"],
-        intent=data["intent"],
-        sentiment=data["sentiment"],
-        sources=data["sources"],
-        answer=answer,
-    )
+        return json.loads(raw.strip())
 
-    return QueryResponse(
-        query=request.question,
-        category=data["category"],
-        priority=data["priority"],
-        intent=data["intent"],
-        sentiment=data["sentiment"],
-        entities=data["entities"],
-        retrieved_sources=data["sources"],
-        answer=answer,
-        confidence_note=data["confidence"],
-        timestamp=datetime.utcnow().isoformat(),
-    )
+    except json.JSONDecodeError:
+        return {
+            "category": "general",
+            "priority": "low",
+            "user_intent": "general_inquiry",
+            "product_area": "account",
+            "sentiment": "neutral",
+            "entities": {}
+        }
 
 
-@router.post("/ask/stream")
-async def ask_stream(request: QueryRequest, username: str = Depends(verify_token)):
-    data = prepare_request(request.question, request.session_id)
+# Test with 10 queries
+if __name__ == "__main__":
 
-    def generate():
-        yield f"data: {json.dumps({'type':'metadata','category':data['category'],'priority':data['priority'],'intent':data['intent'],'sentiment':data['sentiment'],'entities':data['entities'],'retrieved_sources':data['sources'],'confidence_note':data['confidence'],'timestamp':datetime.utcnow().isoformat()})}\n\n"
+    test_queries = [
+        "My payment failed yesterday and amount got deducted. I want a refund.",
+        "How do I reset my password?",
+        "I can't log in to my account since 2 days!",
+        "Where is my order? It's been 10 days.",
+        "App keeps crashing after the latest update.",
+        "I want to cancel my premium subscription.",
+        "Can I get a refund for order #12345?",
+        "How do I delete my account permanently?",
+        "My refund of $50 hasn't been processed yet.",
+        "I'm very frustrated, nothing is working!"
+    ]
 
-        full_answer = ""
+    for q in test_queries:
+        print(f"\nQ: {q}")
 
-        stream = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role":"user","content":data["prompt"]}],
-            max_tokens=512,
-            stream=True,
-        )
+        result = extract_support_info(q)
 
-        for chunk in stream:
-            token = chunk.choices[0].delta.content
-            if token:
-                full_answer += token
-                yield f"data: {json.dumps({'type':'token','content':token})}\n\n"
-
-        conversation_memory[request.session_id].append(
-            {"question": request.question, "answer": full_answer}
-        )
-
-        log_query(
-            query=request.question,
-            category=data["category"],
-            priority=data["priority"],
-            intent=data["intent"],
-            sentiment=data["sentiment"],
-            sources=data["sources"],
-            answer=full_answer,
-        )
-
-        yield f"data: {json.dumps({'type':'done'})}\n\n"
-
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
-
-@router.post("/feedback")
-async def submit_feedback(request: FeedbackRequest):
-    feedback_store.append({
-        "session_id": request.session_id,
-        "question": request.question,
-        "answer": request.answer,
-        "feedback": request.feedback,
-        "timestamp": datetime.utcnow().isoformat(),
-    })
-    return {"status": "success", "message": "Feedback recorded"}
-
-
-@router.get("/feedback/stats")
-async def feedback_stats():
-    total = len(feedback_store)
-    up = sum(1 for f in feedback_store if f["feedback"] == "up")
-    down = sum(1 for f in feedback_store if f["feedback"] == "down")
-    return {"total": total, "up": up, "down": down}
+        print(json.dumps(result, indent=2))
+        print("-" * 50)
